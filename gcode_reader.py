@@ -52,7 +52,7 @@ class Part:
 
         self.fan_speed = 0
         self.zoffset = 0
-        self.center_of_mass = [0,0]
+        self.center_of_mass = None
 
     def read_file(self):
         with open(self.root, 'r') as file:
