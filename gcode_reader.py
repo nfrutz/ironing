@@ -7,6 +7,12 @@ ironing_enable_string = "ironing_enabled"
 mesh_string = ";MESH:"
 fan_string = "M106 S"
 ironing_string = ";TYPE:SKIN ;IRONING\n"
+size_min_x = ";PRINT.SIZE.MIN.X:"
+size_min_y = ";PRINT.SIZE.MIN.Y:"
+size_min_z = ";PRINT.SIZE.MIN.Z:"
+size_max_x = ";PRINT.SIZE.MAX.X:"
+size_max_y = ";PRINT.SIZE.MAX.Y:"
+size_max_z = ";PRINT.SIZE.MAX.Z:"
 
 
 class Part:
@@ -46,6 +52,7 @@ class Part:
 
         self.fan_speed = 0
         self.zoffset = 0
+        self.center_of_mass = [0,0]
 
     def read_file(self):
         with open(self.root, 'r') as file:
@@ -89,9 +96,32 @@ class Part:
 
         return self.part_has_ironing
 
+    def get_center_of_mass_from_start_gcode(self):
+        xmin = 0
+        xmax = 0
+        ymin = 0
+        ymax = 0
+
+        for line in self.start_gcode:
+            if size_min_x in line:
+                string_slice = line.strip("/n").split(size_min_x)
+                xmin = float(string_slice[1])
+            elif size_max_x in line:
+                string_slice = line.strip("/n").split(size_max_x)
+                xmax = float(string_slice[1])
+            elif size_min_y in line:
+                string_slice = line.strip("/n").split(size_min_y)
+                ymin = float(string_slice[1])
+            elif size_max_y in line:
+                string_slice = line.strip("/n").split(size_max_y)
+                ymax = float(string_slice[1])
+
+        self.center_of_mass = [xmin + (xmax - xmin)/2, ymin + (ymax - ymin)/2]
+
     def get_part_instructions(self):
 
         self.get_start_gcode_from_file()
+        self.get_center_of_mass_from_start_gcode()
         self.get_end_gcode_from_file()
 
         last_extrusion = 0
@@ -112,7 +142,7 @@ class Part:
                         self.ironing_moves = Layer(-1, ironing_instructions)
                         self.ironing_moves.set_ironing_skin_code()
 
-                        rotated_moves = self.ironing_moves.rotate_ironing_instructions()
+                        rotated_moves = self.ironing_moves.rotate_ironing_instructions(center_of_mass=self.center_of_mass)
                         self.ironing_rotated_moves = Layer(-1, rotated_moves)
                         self.ironing_rotated_moves.set_ironing_skin_code()
 
@@ -269,8 +299,8 @@ class Layer:
         else:
             pass
 
-    def rotate_ironing_instructions(self):
-        return rotate_gcode_lines(self.gcode_lines)
+    def rotate_ironing_instructions(self, center_of_mass=None):
+        return rotate_gcode_lines(self.gcode_lines, center_of_mass)
 
     def get_gcode_modified(self, extrusion_length, ironing=None, disable_flow=False, fan_speed=-1, z_offset=0):
         gcode = []
@@ -333,9 +363,10 @@ def get_gcode_line_without_extrusion(line):
 
     return new_gcode
 
-def rotate_gcode_lines(list_of_gcode):
+def rotate_gcode_lines(list_of_gcode, center_of_mass=None):
     ironing_rotated_moves = []
-    center_of_mass = get_center_of_mass_of_gcode(list_of_gcode)
+    if not center_of_mass:
+        center_of_mass = get_center_of_mass_of_gcode(list_of_gcode)
 
     for line in list_of_gcode:
         if "G1" in line or "G0" in line:
@@ -418,3 +449,6 @@ def get_center_of_mass_of_gcode(list_of_gcode):
         print("No points found...")
 
     return center_of_mass
+
+def get_center_of_mass_from_start_gcode(list_of_gcode):
+    pass
