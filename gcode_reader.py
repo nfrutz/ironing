@@ -54,7 +54,7 @@ class Part:
         self.zoffset = 0
         self.center_of_mass = None
 
-    def read_file(self):
+    def read_file(self) -> object:
         with open(self.root, 'r') as file:
             self.file_lines = file.readlines()
 
@@ -335,10 +335,16 @@ class Layer:
                 ironing_gcode.insert(1, "G0 Z%s\n" % str(self.z_height + z_offset))
                 ironing_gcode.insert(len(ironing_gcode), "G0 Z%s\n" % str(self.z_height))
 
-            return gcode + ironing_gcode + list(self.gcode_lines[-1])
+            gcode_list = gcode + ironing_gcode
+            gcode_list.append(self.gcode_lines[-1])
+            return gcode_list
+            #return gcode + ironing_gcode + self.gcode_lines[-1]
 
         else:
-            return gcode + list(self.gcode_lines[-1])
+            gcode_list = gcode
+            gcode_list.append(self.gcode_lines[-1])
+            return gcode_list
+            #return gcode + list(self.gcode_lines[-1])
 
 
 def get_new_extrusion_on_gcode_line(line, extrusion_length):
