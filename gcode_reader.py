@@ -104,16 +104,16 @@ class Part:
 
         for line in self.start_gcode:
             if size_min_x in line:
-                string_slice = line.strip("/n").split(size_min_x)
+                string_slice = line.strip("\n").split(size_min_x)
                 xmin = float(string_slice[1])
             elif size_max_x in line:
-                string_slice = line.strip("/n").split(size_max_x)
+                string_slice = line.strip("\n").split(size_max_x)
                 xmax = float(string_slice[1])
             elif size_min_y in line:
-                string_slice = line.strip("/n").split(size_min_y)
+                string_slice = line.strip("\n").split(size_min_y)
                 ymin = float(string_slice[1])
             elif size_max_y in line:
-                string_slice = line.strip("/n").split(size_max_y)
+                string_slice = line.strip("\n").split(size_max_y)
                 ymax = float(string_slice[1])
 
         self.center_of_mass = [xmin + (xmax - xmin)/2, ymin + (ymax - ymin)/2]

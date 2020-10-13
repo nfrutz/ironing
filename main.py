@@ -76,10 +76,12 @@ class GUI(tk.Tk):
         tk.Label(self.read_settings, text=self.part.settings["ironing_flow"]).grid(row=3, column=1, padx=5, sticky='nwe')
 
         tk.Label(self.read_settings, text="Ironing Inset:").grid(row=4, column=0, padx=5, sticky='nwe')
-        tk.Label(self.read_settings, text=self.part.settings["ironing_inset"]).grid(row=4, column=1, padx=5, sticky='nwe')
+        #tk.Label(self.read_settings, text=self.part.settings["ironing_inset"]).grid(row=4, column=1, padx=5, sticky='nwe')
+        tk.Label(self.read_settings, text="??").grid(row=4, column=1, padx=5, sticky='nwe')
 
         tk.Label(self.read_settings, text="Speed Ironing:").grid(row=5, column=0, padx=5, sticky='nwe')
-        tk.Label(self.read_settings, text=self.part.settings["speed_ironing"]).grid(row=5, column=1, padx=5, sticky='nwe')
+        #tk.Label(self.read_settings, text=self.part.settings["speed_ironing"]).grid(row=5, column=1, padx=5, sticky='nwe')
+        tk.Label(self.read_settings, text="??").grid(row=5, column=1, padx=5, sticky='nwe')
 
         # OPTIONS FOR IRONING
         self.ironing_settings = ttk.LabelFrame(self.main_container, text="Apply Ironing")
