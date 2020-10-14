@@ -179,12 +179,18 @@ class Part:
                             layer_gcode = self.list_of_layers[index].get_gcode_modified(length_increment, self.ironing_moves, disable_flow, fan_speed, z_offset)
                         else:
                             layer_gcode = self.list_of_layers[index].get_gcode_modified(length_increment, self.ironing_rotated_moves, disable_flow, fan_speed, z_offset)
+
+                        back_to_previous_spot = layer_gcode[len(layer_gcode) - len(self.ironing_moves.gcode_lines)-2]
+                        layer_gcode.insert(-1, back_to_previous_spot)
                         length_increment += self.ironing_rotated_moves.extrusion_length
                     elif direction == "optb":
                         if (len(self.list_of_layers) - index) % 2 == 0:
                             layer_gcode = self.list_of_layers[index].get_gcode_modified(length_increment, self.ironing_rotated_moves, disable_flow, fan_speed, z_offset)
                         else:
                             layer_gcode = self.list_of_layers[index].get_gcode_modified(length_increment, self.ironing_moves, disable_flow, fan_speed, z_offset)
+
+                        back_to_previous_spot = layer_gcode[len(layer_gcode) - len(self.ironing_moves.gcode_lines)-2].replace("G1", "G9")
+                        layer_gcode.insert(-1, back_to_previous_spot)
                         length_increment += self.ironing_moves.extrusion_length
                 else:
                     layer_gcode = self.list_of_layers[index].get_gcode_modified(length_increment)
@@ -289,7 +295,6 @@ class Layer:
 
         return self.z_height
 
-
     def get_ironing_instructions_from_layer(self):
         if self.number_of_parts == 1:
             skin_in_gcode = [index for index, line in enumerate(self.gcode_lines) if skin_string in line]
@@ -297,6 +302,7 @@ class Layer:
             self.gcode_lines = self.gcode_lines[:skin_in_gcode[-1]] + [self.gcode_lines[-1]]
             return ironing_in_gcode
         else:
+            print("Not implemented for more than 1 part")
             pass
 
     def rotate_ironing_instructions(self, center_of_mass=None):
