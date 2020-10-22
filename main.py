@@ -32,6 +32,7 @@ def success_popup_message(message):
     if messagebox.showinfo("Success", message):
         pass
 
+
 class GUI(tk.Tk):
 
     def __init__(self):
@@ -184,6 +185,9 @@ class GUI(tk.Tk):
                 print(list_for_ironing)
 
             elif self.radio_var.get() == 'opt2':
+                if "[" in self.list_ironings.get():
+                    print("Do not use '[' nor ']'")
+
                 separate = self.list_ironings.get().split(',')
                 if len(separate) != len(self.part.list_of_layers):
                     popup_message("Number of layers mismatch")
@@ -192,9 +196,10 @@ class GUI(tk.Tk):
                     print(list_for_ironing)
 
             fan_speed = 255 * float(self.fan_speed.get()) / 100
-            flow = bool(self.disable_flow.get())
+            flow_is_disable = bool(self.disable_flow.get())
             z_offset = float(self.z_offset.get())
-            result = self.part.add_ironing_to_part(list_for_ironing, self.flow_dir.get(), flow, fan_speed, z_offset)
+            flow_direction = self.flow_dir.get()
+            result = self.part.add_ironing_to_part(list_for_ironing, flow_direction, flow_is_disable, fan_speed, z_offset)
 
             if result:
                 success_popup_message("Ironing caculated with success!")
@@ -208,3 +213,4 @@ if __name__ == '__main__':
     app = GUI()
     app.protocol("WM_DELETE_WINDOW", lambda: quit_confirmation(app))
     app.mainloop()
+    print("ok")

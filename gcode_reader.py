@@ -352,6 +352,46 @@ class Layer:
             return gcode_list
             #return gcode + list(self.gcode_lines[-1])
 
+    def get_gcode_modified_v2(self, extrusion_length, ironing=None, disable_flow=False, fan_speed=-1, z_offset=0):
+        gcode = []
+        gcode += self.gcode_lines[:-1]
+
+
+
+        ironing_gcode = []
+        if ironing:
+            for line in ironing.gcode_lines:
+                if "G1" in line and "E" in line:
+                    if disable_flow:
+                        new_line = get_gcode_line_without_extrusion(line)
+                        if new_line != "":
+                            ironing_gcode.append(new_line)
+                    else:
+                        new_line = get_new_extrusion_on_gcode_line(line, self.extrusion_end + extrusion_length - ironing.extrusion_start)
+                        if new_line:
+                            ironing_gcode.append(new_line)
+                else:
+                    ironing_gcode.append(line)
+
+            if fan_speed >= 0:
+                ironing_gcode.insert(1, "M106 S%s\n" % fan_speed)
+                ironing_gcode.insert(len(ironing_gcode), "M106 S%s\n" % self.fan_speed)
+
+            if z_offset != 0:
+                ironing_gcode.insert(1, "G0 Z%s\n" % str(self.z_height + z_offset))
+                ironing_gcode.insert(len(ironing_gcode), "G0 Z%s\n" % str(self.z_height))
+
+            gcode_list = gcode + ironing_gcode
+            gcode_list.append(self.gcode_lines[-1])
+            return gcode_list
+            #return gcode + ironing_gcode + self.gcode_lines[-1]
+
+        else:
+            gcode_list = gcode
+            gcode_list.append(self.gcode_lines[-1])
+            return gcode_list
+            #return gcode + list(self.gcode_lines[-1])
+
 
 def get_new_extrusion_on_gcode_line(line, extrusion_length):
     aux_line = line.strip("\n").split("E")
